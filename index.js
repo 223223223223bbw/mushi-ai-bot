@@ -1,41 +1,47 @@
-常数 TelegramBot = 需要('节点-电报-机器人-api ');
-常数 代币 = 过程.包封/包围（动词envelop的简写）.机器人令牌;
-常数 机器人程序 = 新的 TelegramBot(代币, { 投票: 真实的 });
+const TelegramBot = require('node-telegram-bot-api');
+const token = process.env.BOT_TOKEN;
+const bot = new TelegramBot(token, { polling: true });
 
-功能 获取策略(硬币) {
-  常数 价格 = (数学.随意()*10000 + 30000).toFixed(0);
-  返回 `【${硬币.toUpperCase()}策略建议】
+function getStrategy(coin) {
+  const price = (Math.random()*10000 + 30000).toFixed(0);
+  return `【${coin.toUpperCase()}策略建议】
 📈 当前趋势：震荡偏强
-🎯 开仓建议：${价格-500} - ${价格}
-🚀 止盈目标：${+价格 + 2000}
-💣 止损建议：${+普莱斯 - 2000}
+🎯 开仓建议：${price-500} - ${price}
+🚀 止盈目标：${+price + 2000}
+💣 止损建议：${+price - 2000}
 🧠 简单策略逻辑演示`;
 }
 
-机器人.关于OnText(/\/start/, (msg) => {
-  const 聊天 = msg.聊.ID;
-  bot.sendMessage(chatId, '欢迎使用币圈谋士AI，点击按钮获取策略👇', {
-    回复_标记: {
-      键盘: [
-        ['📈BTC的, '🔥ETH],
+// 接收 /start 指令，弹出菜单
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, '欢迎使用「币圈谋士AI」，请选择要查看的币种策略👇', {
+    reply_markup: {
+      keyboard: [
+        ['📈 BTC', '🔥 ETH'],
         ['💎 VIP套餐']
       ],
-      调整键盘大小: 真实的
+      resize_keyboard: true,
+      one_time_keyboard: false
     }
   });
 });
 
-机器人程序.在('消息', (味精) => {
-  常数 文本 = 味精.文本;
-  常数 chatId = 味精.闲谈.身份证明（identification）(识别);
-  如果 (文本 === '📈比特币的 文本=== /btc ') {
-    返回 机器人程序.发送消息(chatId, 获取策略(BTC的));
+// 响应按钮点击或指令
+bot.on('message', (msg) => {
+  const text = msg.text;
+  const chatId = msg.chat.id;
+
+  if (text === '📈 BTC' || text === '/btc') {
+    return bot.sendMessage(chatId, getStrategy('BTC'));
   }
-  如果 (文本 === '🔥ETH    文本 === /eth ') {
-    返回 机器人程序.发送消息(chatId, 获取策略(ETH));
+
+  if (text === '🔥 ETH' || text === '/eth') {
+    return bot.sendMessage(chatId, getStrategy('ETH'));
   }
-  如果 (文本 === '💎贵宾套餐' || 文本 === /vip ') {
-    返回 机器人程序.发送消息(chatId,
+
+  if (text === '💎 VIP套餐' || text === '/vip') {
+    return bot.sendMessage(chatId,
       `🎁 VIP套餐说明：
 - 免费试用1天
 - 月卡：29元
